@@ -1,5 +1,5 @@
 diff --git a/ports/ffmpeg/portfile.cmake b/ports/ffmpeg/portfile.cmake
-index 519b343af0..73d745d03c 100644
+index 519b343af0..51da8bb1b2 100644
 --- a/ports/ffmpeg/portfile.cmake
 +++ b/ports/ffmpeg/portfile.cmake
 @@ -1,8 +1,9 @@
@@ -35,7 +35,7 @@ index 519b343af0..73d745d03c 100644
 +string(APPEND OPTIONS " --enable-protocol=file")
 +string(APPEND OPTIONS " --enable-bsf=mjpeg2jpeg")
 +string(APPEND OPTIONS " --enable-indev=dshow")
-+string(APPEND OPTIONS " --enable-nvv4l2 --extra-cflags='-march=armv8-a+simd+crypto+crc -mtune=cortex-a57'")
++string(APPEND OPTIONS " --enable-libv4l2 --enable-nvv4l2 --extra-cflags='-march=armv8-a+simd+crypto+crc -mtune=cortex-a57'")
  
  if(VCPKG_TARGET_IS_MINGW)
      if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
