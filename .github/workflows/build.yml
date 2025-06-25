@@ -37,7 +37,7 @@ jobs:
 
       - name: Set up build environment (arm64 ubuntu-latest)
         run: |
-          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libv4l-dev
+          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libv4l-dev linux-libc-dev
         if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
 
       - name: Patch vcpkg
