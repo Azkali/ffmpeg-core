@@ -37,7 +37,11 @@ jobs:
 
       - name: Set up build environment (arm64 ubuntu-latest)
         run: |
-          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libv4l-dev linux-libc-dev
+          sudo apt-get install -qy binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libv4l-dev linux-libc-dev wget
+          # Extract Nvidia BSP
+          wget https://developer.nvidia.com/embedded/dlc/r32-3-1_Release_v1.0/t210ref_release_aarch64/Tegra210_Linux_R32.3.1_aarch64.tbz2
+          tar xf Tegra210_Linux_R32.3.1_aarch64.tbz2
+          sudo tar xf Linux_for_Tegra/nv_tegra/nvidia_drivers.tbz2 -C / 
         if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
 
       - name: Patch vcpkg
@@ -49,7 +53,7 @@ jobs:
 
       - name: Build ffmpeg
         run: |
-            vcpkg ${{ matrix.extra-args }} install ffmpeg[avcodec,avfilter,avdevice,avformat,swresample,swscale]:${{ matrix.arch }}-${{ matrix.triplet }}
+            vcpkg ${{ matrix.extra-args }} install ffmpeg[v4l2,avcodec,avfilter,avdevice,avformat,swresample,swscale]:${{ matrix.arch }}-${{ matrix.triplet }}
         if: matrix.triplet != 'mingw-static'
 
       - uses: actions/upload-artifact@v4

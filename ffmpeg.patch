@@ -1,5 +1,5 @@
 diff --git a/ports/ffmpeg/portfile.cmake b/ports/ffmpeg/portfile.cmake
-index 519b343af0..51da8bb1b2 100644
+index 519b343af0..8bad512bdd 100644
 --- a/ports/ffmpeg/portfile.cmake
 +++ b/ports/ffmpeg/portfile.cmake
 @@ -1,8 +1,9 @@
@@ -35,7 +35,7 @@ index 519b343af0..51da8bb1b2 100644
 +string(APPEND OPTIONS " --enable-protocol=file")
 +string(APPEND OPTIONS " --enable-bsf=mjpeg2jpeg")
 +string(APPEND OPTIONS " --enable-indev=dshow")
-+string(APPEND OPTIONS " --enable-libv4l2 --enable-nvv4l2 --extra-cflags='-march=armv8-a+simd+crypto+crc -mtune=cortex-a57'")
++string(APPEND OPTIONS " --enable-nvv4l2 --extra-cflags='-march=armv8-a+simd+crypto+crc -mtune=cortex-a57'")
  
  if(VCPKG_TARGET_IS_MINGW)
      if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
@@ -48,7 +48,39 @@ index 519b343af0..51da8bb1b2 100644
      set(OPTIONS "--toolchain=msvc ${OPTIONS}")
      # This is required because ffmpeg depends upon optimizations to link correctly
      string(APPEND VCPKG_COMBINED_C_FLAGS_DEBUG " -O2")
-@@ -713,6 +728,11 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
+@@ -510,6 +525,31 @@ else()
+     set(WITH_THEORA OFF)
+ endif()
+ 
++# V4L2 support
++if("v4l2" IN_LIST FEATURES)
++    if(NOT VCPKG_TARGET_IS_LINUX)
++        message(FATAL_ERROR "Feature v4l2 only supports Linux")
++    endif()
++    
++    find_program(PKG_CONFIG_EXECUTABLE pkg-config REQUIRED)
++    
++    # Set PKG_CONFIG_PATH to include system paths
++    set(ENV{PKG_CONFIG_PATH} "/usr/lib/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
++    
++    # Check for libv4l2
++    execute_process(
++        COMMAND ${PKG_CONFIG_EXECUTABLE} --exists libv4l2
++        RESULT_VARIABLE LIBV4L2_FOUND
++        OUTPUT_QUIET ERROR_QUIET
++    )
++    
++    if(NOT LIBV4L2_FOUND EQUAL 0)
++        message(FATAL_ERROR "libv4l2 not found via pkg-config. Ensure libv4l-dev is installed.")
++    endif()
++    
++    message(STATUS "Found libv4l2 via pkg-config")
++endif()
++
+ if("vorbis" IN_LIST FEATURES)
+     set(OPTIONS "${OPTIONS} --enable-libvorbis")
+     set(WITH_VORBIS ON)
+@@ -713,6 +753,11 @@ if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
      # We use response files here as the only known way to handle spaces in paths
      set(crsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/cflags.rsp")
      string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_C_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_C_FLAGS_RELEASE}")
@@ -61,18 +93,23 @@ index 519b343af0..51da8bb1b2 100644
      set(ldrsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/ldflags.rsp")
      string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE}")
 diff --git a/ports/ffmpeg/vcpkg.json b/ports/ffmpeg/vcpkg.json
-index 62979244ba..8bd71bf790 100644
+index 62979244ba..2568642c22 100644
 --- a/ports/ffmpeg/vcpkg.json
 +++ b/ports/ffmpeg/vcpkg.json
-@@ -202,6 +202,11 @@
-             "nvcodec"
-           ],
-           "platform": "linux | (!osx & !uwp & !(arm64 & windows))"
-+        },
-+        {
-+           "name": "ffmpeg",
-+           "default-features": false,
-+           "features": ["v4l2"]
-         }
-       ]
+@@ -650,6 +650,16 @@
+     "version3": {
+       "description": "Upgrade (L)GPL to version 3"
      },
++    "v4l2": {
++      "description": "Video4Linux2 support",
++      "supports": "linux",
++      "dependencies": [
++        {
++          "name": "vcpkg-pkgconfig-get-modules",
++          "host": true
++        }
++      ]
++    },
+     "vorbis": {
+       "description": "Vorbis en/decoding via libvorbis, native implementation exists",
+       "dependencies": [
