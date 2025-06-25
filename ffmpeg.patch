@@ -60,3 +60,19 @@ index 519b343af0..51da8bb1b2 100644
      file(WRITE "${crsp}" "${VCPKG_COMBINED_C_FLAGS_RELEASE_SANITIZED}")
      set(ldrsp "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/ldflags.rsp")
      string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE}")
+diff --git a/ports/ffmpeg/vcpkg.json b/ports/ffmpeg/vcpkg.json
+index 62979244ba..8bd71bf790 100644
+--- a/ports/ffmpeg/vcpkg.json
++++ b/ports/ffmpeg/vcpkg.json
+@@ -202,6 +202,11 @@
+             "nvcodec"
+           ],
+           "platform": "linux | (!osx & !uwp & !(arm64 & windows))"
++        },
++        {
++           "name": "ffmpeg",
++           "default-features": false,
++           "features": ["v4l2"]
+         }
+       ]
+     },
